@@ -12,8 +12,9 @@ import com.rapidftr.model.ChildrenListField;
 import com.rapidftr.screens.internal.CustomScreen;
 
 public class ViewChildrenScreen extends CustomScreen {
-
-	private ChildrenListField field;
+	
+	private static final int ROW_HEIGHT = 100;
+	private ChildrenListField childrenList;
 
 	public ViewChildrenScreen() {
 		super();
@@ -23,23 +24,17 @@ public class ViewChildrenScreen extends CustomScreen {
 	private void layoutScreen() {
 		add(new LabelField("All children"));
 		add(new SeparatorField());
-		field = new ChildrenListField() {
-			protected boolean navigationClick(int i, int i1) {
-				if (this.getSelectedIndex() > 0) {
-					Object child = this.get(this, this.getSelectedIndex());
-					if (child instanceof Child) {
-						getController().viewChild((Child) child);
-						return super.navigationClick(i, i1);
-					}
-				}
-				return false;
-			}
-		};
-		add(field);
+		childrenList = new ChildrenListField(){
+            public ViewChildrenController getViewChildController() {
+                return getController();
+            }
+        };
+		add(childrenList);
 	}
 
-	public void setChildren(Children children) {
-		field.set(children.toArray());
+	public void setChildren(Object[] childrenAndImages) {
+		childrenList.set(childrenAndImages);
+		childrenList.setRowHeight(ROW_HEIGHT);
 	}
 
 	private ViewChildrenController getController() {
@@ -47,11 +42,10 @@ public class ViewChildrenScreen extends CustomScreen {
 	}
 
 	protected void makeMenu(Menu menu, int instance) {
-		if (!field.isEmpty()) {
+		if (!childrenList.isEmpty()) {
 			MenuItem editChildMenu = new MenuItem("Open Record", 1, 1) {
 				public void run() {
-					int selectedIndex = field.getSelectedIndex();
-					Child child = (Child) field.get(field, selectedIndex);
+					Child child = childrenList.getSelectedChild();
 					getController().viewChild(child);
 				}
 
@@ -84,5 +78,6 @@ public class ViewChildrenScreen extends CustomScreen {
 		}
 		super.makeMenu(menu, instance);
 	}
+
 
 }

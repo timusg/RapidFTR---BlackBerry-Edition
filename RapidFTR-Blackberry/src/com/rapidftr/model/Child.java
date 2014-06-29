@@ -5,6 +5,9 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import net.rim.device.api.math.Fixed32;
+import net.rim.device.api.system.Bitmap;
+import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.util.Persistable;
 
 import org.json.me.JSONArray;
@@ -13,6 +16,7 @@ import org.json.me.JSONObject;
 
 import com.rapidftr.utilities.FileUtility;
 import com.rapidftr.utilities.HttpUtility;
+import com.rapidftr.utilities.ImageUtility;
 import com.rapidftr.utilities.RandomStringGenerator;
 import com.rapidftr.utilities.StringUtility;
 import com.sun.me.web.request.Arg;
@@ -294,4 +298,30 @@ public class Child implements Persistable {
 				queryString) != -1));
 	}
 
+	public Bitmap getImage() {
+        return getScaledImage(300, 300, "res/head.png");
+	}
+
+    private Bitmap getScaledImage(int width, int height, String defaultImage) {
+        String imageLocation = (String) getField("current_photo_key");
+        EncodedImage fullSizeImage = ImageUtility.getBitmapImageForPath(imageLocation);
+
+        Bitmap bitmap;
+        if(fullSizeImage != null)
+        {
+            int requiredWidth = Fixed32.toFP(width);
+            int requiredHeight = Fixed32.toFP(height);
+            bitmap =ImageUtility.scaleImage(fullSizeImage, requiredWidth, requiredHeight);
+        }
+        else
+        {
+            bitmap = Bitmap.getBitmapResource(defaultImage);
+        }
+
+        return bitmap;
+    }
+
+    public Bitmap getThumbnail(){
+        return getScaledImage(60,60,"res/thumb.png");
+    }
 }
